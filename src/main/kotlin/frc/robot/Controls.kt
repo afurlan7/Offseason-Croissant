@@ -34,10 +34,8 @@ object Controls : Updatable {
 //        button(kA).changeOn(ClimbSubsystem.fullS3ndClimbCommand)
 
 
-
-        button(kX).changeOn(BottomRocketRoutine2()())
+button(kA).changeOn(BottomRocketRoutine2())
 //        button(kX).changeOn(CharacterizationCommand(DriveSubsystem))
-
         // Vision align
 //            triggerAxisButton(GenericHID.Hand.kRight).change(
 //                    ConditionalCommand(VisionDriveCommand(true), VisionDriveCommand(false),
@@ -75,6 +73,8 @@ object Controls : Updatable {
 
             // cargo presets
 //            button(12).changeOn(Superstructure.kCargoIntake.andThen { Intake.wantsOpen = true }) // .changeOff { Superstructure.kStowed.schedule() }
+            button(kX).changeOn(DriveSubsystem.lowGear)
+            button(kBumperLeft).changeOn()
             button(7).changeOn(Superstructure.kCargoLow) // .changeOff { Superstructure.kStowed.schedule() }
             button(6).changeOn(Superstructure.kCargoMid) // .changeOff { Superstructure.kStowed.schedule() }
             button(5).changeOn(Superstructure.kCargoHigh) // .changeOff { Superstructure.kStowed.schedule() }
