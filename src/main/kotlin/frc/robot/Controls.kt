@@ -18,6 +18,8 @@ import org.ghrobotics.lib.mathematics.units.derived.degree
 import org.ghrobotics.lib.mathematics.units.inch
 import org.ghrobotics.lib.wrappers.hid.* // ktlint-disable no-wildcard-imports
 import org.team5940.pantry.lib.Updatable
+//switch statement for D,O & E
+
 
 object Controls : Updatable {
 
@@ -34,13 +36,20 @@ object Controls : Updatable {
 //        button(kA).changeOn(ClimbSubsystem.fullS3ndClimbCommand)
 
 
-button(kA).changeOn(BottomRocketRoutine2())
+        button(kX).changeOn(BottomRocketRoutine2())
 //        button(kX).changeOn(CharacterizationCommand(DriveSubsystem))
         // Vision align
 //            triggerAxisButton(GenericHID.Hand.kRight).change(
 //                    ConditionalCommand(VisionDriveCommand(true), VisionDriveCommand(false),
+        button(kA).change(VisionDriveCommand(true))
 //                            BooleanSupplier { !Superstructure.currentState.isPassedThrough }))
+           /* button(9)whileOn {
+                button(kB).changeOn(ClimbSubsystem.hab3ClimbCommand)
+                button(kB).changeOn(ClimbSubsystem.hab3prepMove).changeOn {isClimbing = true}
+                triggerAxisButton(GenericHID.Hand.kLeft).changeOn(Superstructure.kCargoIntake(true)
+            }
 
+            */
             // Shifting
             if (Constants.kIsRocketLeague) {
                 button(kBumperRight).change(VisionDriveCommand(true))
@@ -63,18 +72,31 @@ button(kA).changeOn(BottomRocketRoutine2())
 //        button(kY).changeOn(ClimbSubsystem.fullS3ndClimbCommand)
 //    }
 
-    val operatorJoy = Joystick(5)
-    val operatorFalconHID = operatorJoy.mapControls {
+    val operatorXboxController = XboxController(0)
+    val operatorFalconHID = operatorXboxController.mapControls {
+        // intake hatch
+        button(kBumperLeft).change(IntakeHatchCommand(releasing = true))
+        button(kBumperRight).change(IntakeHatchCommand(releasing = false))
 
-//        button(4).changeOn(ClimbSubsystem.fullS3ndClimbCommand)
+        // intake ball
+        // cargo -- intake is a bit tricky, it'll go to the intake preset automatically
+        // the lessThanAxisButton represents "intaking", and the greaterThanAxisButton represents "outtaking"
+        val cargoCommand = sequential {
+            +PrintCommand("running cargoCommand")
+            +Superstructure.kCargoIntake
+            +IntakeCargoCommand(releasing = false)
+        }
+        triggerAxisButton(GenericHID.Hand.kLeft).changeOff {
+            (sequential { +ClosedLoopWristMove(40.degree) ; +Superstructure.kStowed; }).schedule()
+        }.change(cargoCommand)
 
+/*      **** OLD JOYSTICK CODE *****
+        // climbing
 
-            // climbing
-
-            // cargo presets
-//            button(12).changeOn(Superstructure.kCargoIntake.andThen { Intake.wantsOpen = true }) // .changeOff { Superstructure.kStowed.schedule() }
-            button(kX).changeOn(DriveSubsystem.lowGear)
-            button(kBumperLeft).changeOn()
+           // cargo presets
+           // button(12).changeOn(Superstructure.kCargoIntake.andThen { Intake.wantsOpen = true }) // .changeOff { Superstructure.kStowed.schedule() }
+            //button(kX).changeOn(DriveSubsystem.lowGear)
+           // button(kBumperLeft).changeOn()
             button(7).changeOn(Superstructure.kCargoLow) // .changeOff { Superstructure.kStowed.schedule() }
             button(6).changeOn(Superstructure.kCargoMid) // .changeOff { Superstructure.kStowed.schedule() }
             button(5).changeOn(Superstructure.kCargoHigh) // .changeOff { Superstructure.kStowed.schedule() }
@@ -108,7 +130,7 @@ button(kA).changeOn(BottomRocketRoutine2())
         }
 
         button(4).changeOn(ClimbSubsystem.prepMove).changeOn { isClimbing = true }
-
+*/
     }
 
     override fun update() {
