@@ -73,7 +73,7 @@ object DriveConstants {
 
 object ManualDriveCommand {
     /**
-     * Curvature or cheezy drive control
+     * Curvature or chezy drive control
      */
     @Suppress("ComplexMethod")
     internal fun curvatureDrive(

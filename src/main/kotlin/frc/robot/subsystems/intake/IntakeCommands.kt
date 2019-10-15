@@ -10,6 +10,10 @@ import kotlinx.coroutines.launch
 import org.ghrobotics.lib.commands.FalconCommand
 import org.ghrobotics.lib.mathematics.units.derived.volt
 import kotlin.math.abs
+import org.ghrobotics.lib.wrappers.hid.getX
+import org.ghrobotics.lib.wrappers.hid.getY
+import edu.wpi.first.wpilibj.GenericHID
+import org.ghrobotics.lib.utils.withDeadband
 
 val closeIntake = InstantCommand(Runnable { Intake.wantsOpen = false })
 val openIntake = InstantCommand(Runnable { Intake.wantsOpen = true })
@@ -79,8 +83,11 @@ class IntakeTeleopCommand : FalconCommand(Intake) {
     }
 
     companion object {
-        val cargoSource by lazy { Controls.operatorFalconHID.getRawAxis(0) }
-        val hatchSource by lazy { Controls.operatorFalconHID.getRawAxis(1) }
+        private const val kDeadband = 0.08
+        val cargoSource by lazy { Controls.driverFalconXbox.getY(GenericHID.Hand.kLeft).withDeadband(kDeadband)}
+        private val hatchSource by lazy { Controls.driverFalconXbox.getX(GenericHID.Hand.kRight)}
+ //      val cargoSource by lazy { Controls.operatorFalconHID.getRawAxis(0) }
+//       val hatchSource by lazy { Controls.operatorFalconHID.getRawAxis(1) }
     }
 }
 
