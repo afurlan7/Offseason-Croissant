@@ -44,21 +44,35 @@ object Controls : Updatable {
 //                button(kBumperLeft).changeOn(Superstructure.kHatchLow).changeOff { Superstructure.kStowed.schedule() }
 
                 state({ driverControllerLowLevel.getBumper(GenericHID.Hand.kRight) }) {
-                    button(kY).changeOn(Superstructure.kHatchHigh).changeOff { Superstructure.kStowed.schedule() }
-                    triggerAxisButton(GenericHID.Hand.kLeft).changeOn(Superstructure.kHatchMid).changeOff { Superstructure.kStowed.schedule() }
-                    button(kBumperLeft).changeOn(Superstructure.kHatchLow).changeOff { Superstructure.kStowed.schedule() }
+                    button(kY) {
+                        button(kB) {
+                            changeOn(Superstructure.kHatchHigh).changeOff { Superstructure.kStowed.schedule() }
+                        }
+                    }
+                    button(kA) {
+                       button(kX){
+                           changeOn(Superstructure.kHatchMid).changeOff { Superstructure.kStowed.schedule() }
+                    }
                 }
-                /* state({ operatorXboxController.getBumper(GenericHID.Hand.kLeft) }) {
+                            button(kBumperLeft).changeOn(Superstructure.kHatchLow).changeOff { Superstructure.kStowed.schedule() }
+                        }
+                }
+                 state({ operatorXboxController.getBumper(GenericHID.Hand.kLeft) }) {
                      button(kY).changeOn(Superstructure.kCargoHigh).changeOff { Superstructure.kStowed.schedule() }
                      button(kBumperRight).changeOn(Superstructure.kCargoMid).changeOff { Superstructure.kStowed.schedule() }
-                     triggerAxisButton(GenericHID.Hand.kLeft).changeOn(Superstructure.kCargoLow).changeOff { Superstructure.kStowed.schedule() }
-                     button(kB).changeOn(Superstructure.kCargoShip).changeOff { Superstructure.kStowed.schedule() }
-                 } */
+                     button(kA) {
+                         button(kX) {
+                             changeOn(Superstructure.kCargoLow).changeOff { Superstructure.kStowed.schedule() }
+                         }
+                     }
+                         button(kB).changeOn(Superstructure.kCargoShip).changeOff { Superstructure.kStowed.schedule() }
+                     }
+                 }
             }
         }
 
 
-}
+
 
 //    val auxXbox = XboxController(1)
 //    val auxFalconXbox = auxXbox.mapControls {
@@ -69,12 +83,12 @@ val operatorXboxController = XboxController(5)
 val operatorFalconHID = operatorXboxController.mapControls {
     //  val operatorJoy = Joystick (5)
     // val operatorFalconHID = operatorJoy.mapControls {
-    state({ driverControllerLowLevel.getRawButton(9) }) {
-        state({ driverControllerLowLevel.getRawButton((10)) }) {
+   // state({ driverControllerLowLevel.getRawButton(9) }) {
+    //    state({ driverControllerLowLevel.getRawButton((10)) }) {
             //button(kBumperLeft).change(IntakeHatchCommand(releasing = true))
 
 
-            state({ operatorXboxController.getBumper(GenericHID.Hand.kRight) }) {
+        //    state({ operatorXboxController.getBumper(GenericHID.Hand.kRight) }) {
                 triggerAxisButton(GenericHID.Hand.kRight).changeOn(Superstructure.kHatchHigh).changeOff { Superstructure.kStowed.schedule() }
                 triggerAxisButton(GenericHID.Hand.kLeft).changeOn(Superstructure.kHatchMid).changeOff { Superstructure.kStowed.schedule() }
                 button(kBumperLeft).changeOn(Superstructure.kHatchLow).changeOff { Superstructure.kStowed.schedule() }
@@ -85,8 +99,8 @@ val operatorFalconHID = operatorXboxController.mapControls {
                 triggerAxisButton(GenericHID.Hand.kLeft).changeOn(Superstructure.kCargoLow).changeOff { Superstructure.kStowed.schedule() }
                 button(kB).changeOn(Superstructure.kCargoShip).changeOff { Superstructure.kStowed.schedule() }
             } */
-        }
-    }
+      //  }
+    //}
     // intake hatch
 
     // intake ball
@@ -96,11 +110,10 @@ val operatorFalconHID = operatorXboxController.mapControls {
         +PrintCommand("running cargoCommand")
         +Superstructure.kCargoIntake
         +IntakeCargoCommand(releasing = false)
+        //triggerAxisButton(GenericHID.Hand.kLeft).changeOff {
+            (sequential { +ClosedLoopWristMove(40.degree); +Superstructure.kStowed; }).schedule()
+      //  }.change(cargoCommand)
     }
-    triggerAxisButton(GenericHID.Hand.kLeft).changeOff {
-        (sequential { +ClosedLoopWristMove(40.degree); +Superstructure.kStowed; }).schedule()
-    }.change(cargoCommand)
-
 
     val cargoRelease = sequential {
         +PrintCommand("running cargoRelease")
@@ -151,7 +164,7 @@ val operatorFalconHID = operatorXboxController.mapControls {
 */
 
 
-}
+
 
 
     private fun Command.andThen(block: () -> Unit) = sequential { +this@andThen; +InstantCommand(Runnable(block)) }
@@ -165,4 +178,5 @@ val operatorFalconHID = operatorXboxController.mapControls {
         }
     }
 
-}
+
+//}
