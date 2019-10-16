@@ -45,7 +45,7 @@ object Controls : Updatable {
 
         button(2).changeOn { DriveSubsystem.lowGear = !DriveSubsystem.lowGear}
        button(kBumperLeft).change(IntakeHatchCommand(releasing = true))
-       button(kY).change(IntakeTeleopCommand)
+      // button(kY).change(IntakeTeleopCommand)
 
 
 
@@ -54,6 +54,12 @@ object Controls : Updatable {
 
 
         state({ driverControllerLowLevel.getRawButton(9) }) {
+            button(kA) {
+                button(kX) {
+                    changeOn(Superstructure.kCargoLow).changeOff { Superstructure.kStowed.schedule() }
+                }
+            }
+            button(kB).changeOn(Superstructure.kCargoShip).changeOff { Superstructure.kStowed.schedule() }
 
             state({ driverControllerLowLevel.getRawButton((10)) }) {
                 //button(kBumperLeft).change(IntakeHatchCommand(releasing = true))
@@ -74,20 +80,13 @@ object Controls : Updatable {
                 }
             }
         button(kBumperRight).change(IntakeCargoCommand(releasing = true))
-            state({ driverControllerLowLevel.getRawButton(9) }) {
+
 
 
                 //state({ operatorXboxController.getBumper(GenericHID.Hand.kLeft) }) {
                     //button(kY).changeOn(Superstructure.kCargoHigh).changeOff { Superstructure.kStowed.schedule() }
                     //button(kBumperRight).changeOn(Superstructure.kCargoMid).changeOff { Superstructure.kStowed.schedule() }
-                    button(kA) {
-                        button(kX) {
-                            changeOn(Superstructure.kCargoLow).changeOff { Superstructure.kStowed.schedule() }
-                        }
-                    }
-                    button(kB).changeOn(Superstructure.kCargoShip).changeOff { Superstructure.kStowed.schedule() }
-                }
-            }
+
         }
 
 private infix fun FalconHIDButtonBuilder.SetGearCommand(wantsLow: Any) {
@@ -114,9 +113,9 @@ val operatorFalconHID = operatorXboxController.mapControls {
 
 
         //    state({ operatorXboxController.getBumper(GenericHID.Hand.kRight) }) {
-                triggerAxisButton(GenericHID.Hand.kRight).changeOn(Superstructure.kHatchHigh).changeOff { Superstructure.kStowed.schedule() }
+                /*triggerAxisButton(GenericHID.Hand.kRight).changeOn(Superstructure.kHatchHigh).changeOff { Superstructure.kStowed.schedule() }
                 triggerAxisButton(GenericHID.Hand.kLeft).changeOn(Superstructure.kHatchMid).changeOff { Superstructure.kStowed.schedule() }
-                button(kBumperLeft).changeOn(Superstructure.kHatchLow).changeOff { Superstructure.kStowed.schedule() }
+                button(kBumperLeft).changeOn(Superstructure.kHatchLow).changeOff { Superstructure.kStowed.schedule() }*/
             }
            /* state({ operatorXboxController.getBumper(GenericHID.Hand.kLeft) }) {
                 button(kY).changeOn(Superstructure.kCargoHigh).changeOff { Superstructure.kStowed.schedule() }
