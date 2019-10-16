@@ -42,10 +42,22 @@ object Controls : Updatable {
     val driverFalconXbox = driverControllerLowLevel.mapControls {
         registerEmergencyMode()
 
+        if(Constants.kIsRocketLeague) {
+            button(kBumperRight).change(VisionDriveCommand(true))
+            button(2).changeOn { DriveSubsystem.lowGear = true }.changeOff { DriveSubsystem.lowGear = false }
+        } else {
+            triggerAxisButton(GenericHID.Hand.kRight).change(VisionDriveCommand(true))
+            button(kBumperLeft).changeOn {DriveSubsystem.lowGear = true}.changeOff {DriveSubsystem.lowGear = false}
+        }
 
-        button(2).changeOn { DriveSubsystem.lowGear = !DriveSubsystem.lowGear}
-       button(kBumperLeft).change(IntakeHatchCommand(releasing = true))
-       button(kY).change(IntakeTeleopCommand)
+
+       button(kY){
+           button(kB){
+               change(IntakeHatchCommand(releasing = true))
+           }
+       }
+
+
 
 
 
@@ -71,15 +83,21 @@ object Controls : Updatable {
                         }
                     }
                     button(kBumperLeft).changeOn(Superstructure.kHatchLow).changeOff { Superstructure.kStowed.schedule() }
+                button(kStickRight)
+
+                val cargoCommand = sequential {
+                    +PrintCommand("running cargoCommand")
+                    +Superstructure.kCargoIntake
+                    +IntakeCargoCommand(releasing = false)}
+                    button(kBumperRight).changeOff { (sequential { +ClosedLoopWristMove(40.degree); +Superstructure.kStowed; }).schedule() }.change(cargoCommand)
+                    button(kB).changeOff {}.change(IntakeCargoCommand(true))
                 }
+
             }
-        button(kBumperRight).change(IntakeCargoCommand(releasing = true))
             state({ driverControllerLowLevel.getRawButton(9) }) {
 
-
-                //state({ operatorXboxController.getBumper(GenericHID.Hand.kLeft) }) {
-                    //button(kY).changeOn(Superstructure.kCargoHigh).changeOff { Superstructure.kStowed.schedule() }
-                    //button(kBumperRight).changeOn(Superstructure.kCargoMid).changeOff { Superstructure.kStowed.schedule() }
+                    button(kY).changeOn(Superstructure.kCargoHigh).changeOff { Superstructure.kStowed.schedule() }
+                    button(kBumperRight).changeOn(Superstructure.kCargoMid).changeOff { Superstructure.kStowed.schedule() }
                     button(kA) {
                         button(kX) {
                             changeOn(Superstructure.kCargoLow).changeOff { Superstructure.kStowed.schedule() }
@@ -114,9 +132,9 @@ val operatorFalconHID = operatorXboxController.mapControls {
 
 
         //    state({ operatorXboxController.getBumper(GenericHID.Hand.kRight) }) {
-                triggerAxisButton(GenericHID.Hand.kRight).changeOn(Superstructure.kHatchHigh).changeOff { Superstructure.kStowed.schedule() }
+                /*triggerAxisButton(GenericHID.Hand.kRight).changeOn(Superstructure.kHatchHigh).changeOff { Superstructure.kStowed.schedule() }
                 triggerAxisButton(GenericHID.Hand.kLeft).changeOn(Superstructure.kHatchMid).changeOff { Superstructure.kStowed.schedule() }
-                button(kBumperLeft).changeOn(Superstructure.kHatchLow).changeOff { Superstructure.kStowed.schedule() }
+                button(kBumperLeft).changeOn(Superstructure.kHatchLow).changeOff { Superstructure.kStowed.schedule() }*/
             }
            /* state({ operatorXboxController.getBumper(GenericHID.Hand.kLeft) }) {
                 button(kY).changeOn(Superstructure.kCargoHigh).changeOff { Superstructure.kStowed.schedule() }
@@ -131,14 +149,7 @@ val operatorFalconHID = operatorXboxController.mapControls {
     // intake ball
     // cargo -- intake is a bit tricky, it'll go to the intake preset automatically
     // the lessThanAxisButton represents "intaking", and the greaterThanAxisButton represents "outtaking"
-    //val cargoCommand = sequential {
-       // +PrintCommand("running cargoCommand")
-      //  +Superstructure.kCargoIntake
-      //  +IntakeCargoCommand(releasing = false)
-      //  kBumperRight.changeOff {
-     //       (sequential { +ClosedLoopWristMove(40.degree); +Superstructure.kStowed; }).schedule()
-      //  }.change(cargoCommand)
-   // }
+
 
    // val cargoRelease = sequential {
     //    +PrintCommand("running cargoRelease")
