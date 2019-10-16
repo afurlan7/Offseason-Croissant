@@ -75,6 +75,7 @@ class IntakeTeleopCommand : FalconCommand(Intake) {
             Intake.hatchMotorOutput = 12.volt * hatchSpeed
             Intake.cargoMotorOutput = 0.volt
         }
+
     }
 
     override fun end(interrupted: Boolean) {

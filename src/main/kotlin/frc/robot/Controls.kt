@@ -19,6 +19,10 @@ import org.ghrobotics.lib.mathematics.units.derived.degree
 import org.ghrobotics.lib.mathematics.units.inch
 import org.ghrobotics.lib.wrappers.hid.* // ktlint-disable no-wildcard-imports
 import org.team5940.pantry.lib.Updatable
+import frc.robot.subsystems.drive.DriveSubsystem.lowGear
+import frc.robot.Constants.DriveConstants.kLowGearDifferentialDrive
+import frc.robot.subsystems.intake.IntakeTeleopCommand
+
 //switch statement for D,O & E
 
 
@@ -30,46 +34,67 @@ object Controls : Updatable {
 
     var isClimbing = false
 
+
+
     private val zero = ZeroSuperStructureRoutine()
 
     val driverControllerLowLevel = XboxController(0)
     val driverFalconXbox = driverControllerLowLevel.mapControls {
         registerEmergencyMode()
 
+
+        button(2).changeOn { DriveSubsystem.lowGear = !DriveSubsystem.lowGear}
+       button(kBumperLeft).change(IntakeHatchCommand(releasing = true))
+       button(kY).change(IntakeTeleopCommand)
+
+
+
+
+
+
+
         state({ driverControllerLowLevel.getRawButton(9) }) {
 
             state({ driverControllerLowLevel.getRawButton((10)) }) {
                 //button(kBumperLeft).change(IntakeHatchCommand(releasing = true))
 
-//                button(kBumperLeft).changeOn(Superstructure.kHatchLow).changeOff { Superstructure.kStowed.schedule() }
 
-                state({ driverControllerLowLevel.getBumper(GenericHID.Hand.kRight) }) {
+                //state({ driverControllerLowLevel.getBumper(GenericHID.Hand.kRight) }) {
                     button(kY) {
                         button(kB) {
                             changeOn(Superstructure.kHatchHigh).changeOff { Superstructure.kStowed.schedule() }
                         }
                     }
                     button(kA) {
-                       button(kX){
-                           changeOn(Superstructure.kHatchMid).changeOff { Superstructure.kStowed.schedule() }
-                    }
-                }
-                            button(kBumperLeft).changeOn(Superstructure.kHatchLow).changeOff { Superstructure.kStowed.schedule() }
+                        button(kX) {
+                            changeOn(Superstructure.kHatchMid).changeOff { Superstructure.kStowed.schedule() }
                         }
+                    }
+                    button(kBumperLeft).changeOn(Superstructure.kHatchLow).changeOff { Superstructure.kStowed.schedule() }
                 }
-                 state({ operatorXboxController.getBumper(GenericHID.Hand.kLeft) }) {
-                     button(kY).changeOn(Superstructure.kCargoHigh).changeOff { Superstructure.kStowed.schedule() }
-                     button(kBumperRight).changeOn(Superstructure.kCargoMid).changeOff { Superstructure.kStowed.schedule() }
-                     button(kA) {
-                         button(kX) {
-                             changeOn(Superstructure.kCargoLow).changeOff { Superstructure.kStowed.schedule() }
-                         }
-                     }
-                         button(kB).changeOn(Superstructure.kCargoShip).changeOff { Superstructure.kStowed.schedule() }
-                     }
-                 }
+            }
+        button(kBumperRight).change(IntakeCargoCommand(releasing = true))
+            state({ driverControllerLowLevel.getRawButton(9) }) {
+
+
+                //state({ operatorXboxController.getBumper(GenericHID.Hand.kLeft) }) {
+                    //button(kY).changeOn(Superstructure.kCargoHigh).changeOff { Superstructure.kStowed.schedule() }
+                    //button(kBumperRight).changeOn(Superstructure.kCargoMid).changeOff { Superstructure.kStowed.schedule() }
+                    button(kA) {
+                        button(kX) {
+                            changeOn(Superstructure.kCargoLow).changeOff { Superstructure.kStowed.schedule() }
+                        }
+                    }
+                    button(kB).changeOn(Superstructure.kCargoShip).changeOff { Superstructure.kStowed.schedule() }
+                }
             }
         }
+
+private infix fun FalconHIDButtonBuilder.SetGearCommand(wantsLow: Any) {
+
+}
+
+//}
 
 
 
@@ -85,7 +110,7 @@ val operatorFalconHID = operatorXboxController.mapControls {
     // val operatorFalconHID = operatorJoy.mapControls {
    // state({ driverControllerLowLevel.getRawButton(9) }) {
     //    state({ driverControllerLowLevel.getRawButton((10)) }) {
-            //button(kBumperLeft).change(IntakeHatchCommand(releasing = true))
+
 
 
         //    state({ operatorXboxController.getBumper(GenericHID.Hand.kRight) }) {
@@ -106,27 +131,27 @@ val operatorFalconHID = operatorXboxController.mapControls {
     // intake ball
     // cargo -- intake is a bit tricky, it'll go to the intake preset automatically
     // the lessThanAxisButton represents "intaking", and the greaterThanAxisButton represents "outtaking"
-    val cargoCommand = sequential {
-        +PrintCommand("running cargoCommand")
-        +Superstructure.kCargoIntake
-        +IntakeCargoCommand(releasing = false)
-        //triggerAxisButton(GenericHID.Hand.kLeft).changeOff {
-            (sequential { +ClosedLoopWristMove(40.degree); +Superstructure.kStowed; }).schedule()
+    //val cargoCommand = sequential {
+       // +PrintCommand("running cargoCommand")
+      //  +Superstructure.kCargoIntake
+      //  +IntakeCargoCommand(releasing = false)
+      //  kBumperRight.changeOff {
+     //       (sequential { +ClosedLoopWristMove(40.degree); +Superstructure.kStowed; }).schedule()
       //  }.change(cargoCommand)
-    }
+   // }
 
-    val cargoRelease = sequential {
-        +PrintCommand("running cargoRelease")
-        +Superstructure.kCargoIntake
-        +IntakeCargoCommand(releasing = true)
-    }
+   // val cargoRelease = sequential {
+    //    +PrintCommand("running cargoRelease")
+    //    +Superstructure.kCargoIntake
+   //     +IntakeCargoCommand(releasing = true)
+   // }
 
 /*      **** OLD JOYSTICK CODE *****
         // climbing
 
            // cargo presets
            // button(12).changeOn(Superstructure.kCargoIntake.andThen { Intake.wantsOpen = true }) // .changeOff { Superstructure.kStowed.schedule() }
-            //button(kX).changeOn(DriveSubsystem.lowGear)
+
            // button(kBumperLeft).changeOn()
             button(7).changeOn(Superstructure.kCargoLow) // .changeOff { Superstructure.kStowed.schedule() }
             button(6).changeOn(Superstructure.kCargoMid) // .changeOff { Superstructure.kStowed.schedule() }
